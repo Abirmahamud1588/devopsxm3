@@ -25,7 +25,7 @@ jobs:
         run: npm install
 
       - name: Create Test Results Directory
-        run: mkdir test-results
+        run: New-Item -ItemType Directory -Path test-results -Force
 
       - name: Run Tests and Save Results
         run: npm test | Tee-Object -FilePath test-results/test-results.txt
@@ -51,7 +51,7 @@ jobs:
           path: test-results/
 
       - name: Display Test Results
-        run: type test-results/test-results.txt
+        run: Get-Content test-results/test-results.txt
 
       - name: Install Dependencies
         run: npm install

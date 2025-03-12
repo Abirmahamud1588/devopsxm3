@@ -24,14 +24,11 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests
-        run: npm test | Tee-Object -FilePath test-results.txt
-
-      - name: Ensure Artifact Directory Exists
+      - name: Create Test Results Directory
         run: mkdir test-results
 
-      - name: Move Test Results
-        run: move test-results.txt test-results\
+      - name: Run Tests and Save Results
+        run: npm test | Tee-Object -FilePath test-results/test-results.txt
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
@@ -54,7 +51,7 @@ jobs:
           path: test-results/
 
       - name: Display Test Results
-        run: type test-results\test-results.txt
+        run: type test-results/test-results.txt
 
       - name: Install Dependencies
         run: npm install

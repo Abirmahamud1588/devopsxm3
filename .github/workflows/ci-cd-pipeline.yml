@@ -1,28 +1,63 @@
-test:
-  runs-on: windows-latest # Using GitHub's Windows runner for testing
-  steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+name: CI/CD Pipeline for Node.js App
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-    - name: Install Dependencies
-      run: npm install
+jobs:
+  test:
+    runs-on: self-hosted # Using your self-hosted Windows runner
 
-    - name: Run Tests
-      run: npm test | Tee-Object -FilePath test-results.txt
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-    - name: Ensure Artifact Directory Exists
-      run: mkdir -p test-results
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Move Test Results to Directory
-      run: mv test-results.txt test-results/
+      - name: Install Dependencies
+        run: npm install
 
-    - name: Upload Test Results as Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: test-results/
+      - name: Run Tests
+        run: npm test | Tee-Object -FilePath test-results.txt
+
+      - name: Ensure Artifact Directory Exists
+        run: mkdir test-results
+
+      - name: Move Test Results
+        run: move test-results.txt test-results\
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
+
+  deploy:
+    runs-on: self-hosted
+    needs: test # Ensures deployment runs only after testing
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Download Test Results
+        uses: actions/download-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
+
+      - name: Display Test Results
+        run: type test-results\test-results.txt
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Start Application
+        run: node server.js
